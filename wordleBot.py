@@ -67,6 +67,7 @@ seedWord = "SOARE"
 botGuess = seedWord.lower()
 numberOfGuesses = 1
 pastGuesses = [botGuess]
+guessHistory = []
 
 # Possible letters for each 'digit'
 correctLetters = [
@@ -83,6 +84,7 @@ guess = input().lower()
 
 
 while(numberOfGuesses < 6 and guess != 'ggggg'):
+    guessHistory.append(guess)
     mustContain = []
     possibleGuesses = []
     #Update correct letters for each slot in the word based on correctness input
@@ -112,19 +114,21 @@ while(numberOfGuesses < 6 and guess != 'ggggg'):
     # Check if the letters in the current word match the available letters in correctLetters.
     for k, v in sorted(scored_words.items(), key=lambda p:p[1], reverse=True):
         if(k[0] in correctLetters[0] and k[1] in correctLetters[1] and k[2] in correctLetters[2] and k[3] in correctLetters[3] and k[4] in correctLetters[4]):
+            # After redoing some of the above filtering logic, this section appears to be deprecated. Still testing. Must contain is an array, not a set.
             # Boolean array that indicates if a slot in the word has been checked. This is to account for words with duplicate letters.
-            checked = [False, False, False, False, False]
-            trueChecked = 0
-            for char in mustContain:
-                for i in range(len(k)):
-                    if(char == k[i] and checked[i] == False):
-                        checked[i] = True
-                        trueChecked += 1
-                        break
-            #Possible guesses have an equal number of slots checked as the length of what the word must contain, as that is what has been confirmed from the input. 
-            if(trueChecked == len(mustContain)):
-                print(k, v)
-                possibleGuesses.append(k)
+            # checked = [False, False, False, False, False]
+            # trueChecked = 0
+            # for char in mustContain:
+            #     for i in range(len(k)):
+            #         if(char == k[i] and checked[i] == False):
+            #             checked[i] = True
+            #             trueChecked += 1
+            #             break
+            # #Possible guesses have an equal number of slots checked as the length of what the word must contain, as that is what has been confirmed from the input. 
+            # if(trueChecked == len(mustContain)):
+            #     print(k, v)
+            #     possibleGuesses.append(k)
+            possibleGuesses.append(k)
     # print(possibleGuesses)
     # Prioritize unique lettered words for guesses 2-5
     uniqueGuess = False
@@ -145,7 +149,28 @@ while(numberOfGuesses < 6 and guess != 'ggggg'):
     print("Guess #" + str(numberOfGuesses) + ": " + botGuess)
     guess = input()
 
+# Prints out the guesses made and green/yellow/black square emojis if set to True
+emojiOutput = True
+
 if(guess == 'ggggg'):
     print("I won in " + str(numberOfGuesses) + " guesses!")
+    if emojiOutput:
+        guesses = ""
+        for guess in pastGuesses:
+            guesses += guess + " -> "
+        print("Bot Guesses: ||" + guesses[:-4] + "||")
+        
+        guessHistory.append('ggggg')
+        for guess in guessHistory:
+            output = ''
+            for c in guess:
+                if c == 'g':
+                    output += ":green_square:"
+                elif c == 'y':
+                    output += ":yellow_square:"
+                else:
+                    output += ":black_large_square:"
+            print(output)
+        
 else:
     print("I did not get the answer =(")
