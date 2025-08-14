@@ -68,6 +68,8 @@ botGuess = seedWord.lower()
 numberOfGuesses = 1
 pastGuesses = [botGuess]
 guessHistory = []
+# Determines through which guess it will rescore the words based on an updated frequency list. 1 = No rescoring.
+rescoreUpperBound = 2
 
 # Possible letters for each 'digit'
 correctLetters = [
@@ -87,6 +89,7 @@ while(numberOfGuesses < 6 and guess != 'ggggg'):
     guessHistory.append(guess)
     mustContain = []
     possibleGuesses = []
+    
     #Update correct letters for each slot in the word based on correctness input
     for i, c in enumerate(guess):
         if(c == 'g'):
@@ -116,23 +119,23 @@ while(numberOfGuesses < 6 and guess != 'ggggg'):
         if(k[0] in correctLetters[0] and k[1] in correctLetters[1] and k[2] in correctLetters[2] and k[3] in correctLetters[3] and k[4] in correctLetters[4]):
             # After redoing some of the above filtering logic, this section appears to be deprecated. Still testing. Must contain is an array, not a set.
             # Boolean array that indicates if a slot in the word has been checked. This is to account for words with duplicate letters.
-            # checked = [False, False, False, False, False]
-            # trueChecked = 0
-            # for char in mustContain:
-            #     for i in range(len(k)):
-            #         if(char == k[i] and checked[i] == False):
-            #             checked[i] = True
-            #             trueChecked += 1
-            #             break
-            # #Possible guesses have an equal number of slots checked as the length of what the word must contain, as that is what has been confirmed from the input. 
-            # if(trueChecked == len(mustContain)):
-            #     print(k, v)
-            #     possibleGuesses.append(k)
-            possibleGuesses.append(k)
+            checked = [False, False, False, False, False]
+            trueChecked = 0
+            for char in mustContain:
+                for i in range(len(k)):
+                    if(char == k[i] and checked[i] == False):
+                        checked[i] = True
+                        trueChecked += 1
+                        break
+            #Possible guesses have an equal number of slots checked as the length of what the word must contain, as that is what has been confirmed from the input. 
+            if(trueChecked == len(mustContain)):
+                # print(k, v)
+                possibleGuesses.append(k)
+            # possibleGuesses.append(k)
     # print(possibleGuesses)
-    # Prioritize unique lettered words for guesses 2-5
+    # Prioritize unique lettered words for guesses 1 (seed), 2, and 3
     uniqueGuess = False
-    if(numberOfGuesses < 5):
+    if(numberOfGuesses < 3):
         for word in possibleGuesses:
             if(uniqueWord(word)):
                 botGuess = word
@@ -147,6 +150,19 @@ while(numberOfGuesses < 6 and guess != 'ggggg'):
                 
     numberOfGuesses += 1
     print("Guess #" + str(numberOfGuesses) + ": " + botGuess)
+
+    # Make a new frequency dictionary and rescore the words for however many guesses as is defined by rescoreUpperBound, which can be modified above.
+    if(numberOfGuesses <= rescoreUpperBound):
+        scored_words.clear()
+        newDictionary = dict.fromkeys(orig_freq_dict.keys(), 0)
+        # Create new frequency dictionary
+        for word in possibleGuesses:
+            for c in word:
+                newDictionary[c] += 1
+        for word in possibleGuesses:
+            curScore = score(word, newDictionary)
+            scored_words[word] = curScore
+
     guess = input()
 
 # Prints out the guesses made and green/yellow/black square emojis if set to True
@@ -158,7 +174,7 @@ if(guess == 'ggggg'):
         guesses = ""
         for guess in pastGuesses:
             guesses += guess + " -> "
-        print("Bot Guesses: ||" + guesses[:-4] + "||")
+        print("Bot Guesses: |-|" + guesses[:-4] + "|-|")
         
         guessHistory.append('ggggg')
         for guess in guessHistory:
