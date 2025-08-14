@@ -174,7 +174,7 @@ if(guess == 'ggggg'):
         guesses = ""
         for guess in pastGuesses:
             guesses += guess + " -> "
-        print("Bot Guesses: |-|" + guesses[:-4] + "|-|")
+        print("Bot Guesses: ||" + guesses[:-4] + "||")
         
         guessHistory.append('ggggg')
         for guess in guessHistory:
